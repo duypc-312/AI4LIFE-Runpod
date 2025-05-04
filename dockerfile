@@ -32,20 +32,14 @@ WORKDIR /app
 
 
 COPY down_cache.py /app/
-RUN python3 /app/down_cache.py
-
 COPY run.sh /app/
 COPY runpod_handler.py /app/
 
-COPY pull_model_repo_trt_no_unet.py /app/
-RUN python3 /app/pull_model_repo_trt_no_unet.py
+COPY pull_triton.py /app/
+RUN python3 /app/pull_triton.py
 
-COPY pull_unet_opt.py /app/
-RUN python3 /app/pull_unet_opt.py
-
-COPY build_unet_engine.sh /app/
-
-RUN ["bash", "build_unet_engine.sh"]
+RUN python3 /app/down_cache.py
+# COPY --chown=1000:1000 model_repo /models
 
 ###############################
 # FOR TESTING LOCAL ONLY

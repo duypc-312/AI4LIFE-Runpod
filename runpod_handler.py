@@ -46,9 +46,8 @@ def wait_for_triton(timeout=360):
 
 
 # --- User‑configurable settings ---
-SERVER_URL           = "localhost:1238"
+SERVER_URL           = "localhost:8001"
 MODEL_NAME           = "BLS"
-client = grpcclient.InferenceServerClient(url=SERVER_URL, verbose=False)
 
 def load_and_preprocess(image_ne, ori):
     if ori == 1:
@@ -69,6 +68,8 @@ app = FastAPI()
 @app.post("/inference")
 async def inference_endpoint(event: dict):
     # Extract inputs
+    tritonclient = grpcclient.InferenceServerClient(url=SERVER_URL, verbose=False)
+    
     init_images = event["input"].get("ori_iamge")
     mask_base64 = event["input"].get("mask")
     guidanscale = float(event["input"].get("scale"))
@@ -113,7 +114,7 @@ async def inference_endpoint(event: dict):
     outputs = [InferRequestedOutput("IMAGES")]
 
     # 6) Perform inference
-    response = client.infer(
+    response = tritonclient.infer(
         model_name=MODEL_NAME,
         inputs=[inp_orig, inp_mask, inp_gs, inp_steps],
         outputs=outputs
