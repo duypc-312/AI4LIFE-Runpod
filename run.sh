@@ -1,6 +1,6 @@
 #!/bin/bash
 echo "=============================START============================="
-tritonserver --model-repository=/models --http-port 7000 --grpc-port 8001 --metrics-port 8002 &
+tritonserver --model-repository=/app/model_repo --http-port 7000 --grpc-port 8001 --metrics-port 8002 &
 TRITON_PID=$!
 echo "Started Triton Server with PID ${TRITON_PID}"
 
