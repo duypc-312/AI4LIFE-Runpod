@@ -1,0 +1,51 @@
+FROM nvcr.io/nvidia/tritonserver:24.04-py3
+
+# 1) Install OS‑level dependencies (provides libGL.so.1 and related libs)
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      libgl1-mesa-glx \
+      libsm6 \
+      libxrender1 \
+      libxext6 \
+ && rm -rf /var/lib/apt/lists/*
+
+# 2) Install all Python dependencies in one layer
+RUN pip install --no-cache-dir \
+        transformers \
+        torch \
+        pillow \
+        numpy==1.26 \
+        diffusers==0.30.3 \
+        requests \
+        onnxruntime-genai-cuda \
+        "olive-ai[gpu]" \
+        opencv-python==4.11.0.86
+
+RUN pip install --no-cache-dir torchvision==0.20.0 scipy==1.15.2
+
+RUN pip install --no-cache-dir diffusers==0.32.2 transformers==4.48.3
+RUN pip install --no-cache-dir accelerate
+
+RUN pip install --no-cache-dir nest_asyncio tritonclient runpod fastapi uvicorn tritonclient[all] requests
+
+WORKDIR /app
+
+
+COPY down_cache.py /app/
+COPY run.sh /app/
+COPY runpod_handler.py /app/
+
+COPY pull_triton_1.py /app/
+RUN python3 /app/pull_triton.py
+
+RUN python3 /app/down_cache.py
+# COPY --chown=1000:1000 model_repo /models
+
+###############################
+# FOR TESTING LOCAL ONLY
+# COPY test_input.json /app/
+###############################
+
+EXPOSE 8000 8001 8002 8080
+
+CMD ["bash", "run.sh"]
