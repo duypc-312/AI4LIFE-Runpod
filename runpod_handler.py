@@ -8,6 +8,7 @@ import argparse
 import asyncio
 import json
 import sys
+import gc
 import time
 import nest_asyncio
 nest_asyncio.apply()  # Allow nested event loops
@@ -26,7 +27,7 @@ from tritonclient.grpc import InferInput, InferRequestedOutput
 import os
 import base64
 from io import BytesIO
-
+from runpod.serverless.utils.rp_cleanup import clean
 # (Your original functions and classes remain unchanged.)
 def wait_for_triton(timeout=360):
     """Polls Triton's health endpoint until ready or timeout reached."""
@@ -134,7 +135,9 @@ async def inference_endpoint(event: dict):
     # 3) Base64-encode the bytes
     img_bytes = buffer.getvalue()
     img_b64 = base64.b64encode(img_bytes).decode("utf-8")
-
+    buffer.close()
+    del img, image_array, result, orig, mask
+    gc.collect()
     return {"result_image": img_b64}
 
 # Use TestClient to wrap the FastAPI app as a simple handler for Runpod.
@@ -143,6 +146,7 @@ client = TestClient(app)
 def handler(event):
     # Forward the event to the FastAPI endpoint via TestClient.
     response = client.post("/inference", json=event)
+    clean()
     return response.json()
 
 if __name__ == '__main__':

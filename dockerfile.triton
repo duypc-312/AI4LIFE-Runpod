@@ -36,9 +36,9 @@ COPY run.sh /app/
 COPY runpod_handler.py /app/
 
 COPY pull_triton.py /app/
-RUN python3 pull_triton.py
+RUN python3 /app/pull_triton.py
 
-RUN python3 down_cache.py
+RUN python3 /app/down_cache.py
 # COPY --chown=1000:1000 model_repo /models
 
 ###############################
