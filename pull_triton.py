@@ -5,7 +5,7 @@ import sys
 
 # === Config ===
 REPO_ID = "PhanDuy/SD1.5_inpaint_triton"     # HF repo ID
-FILENAME = "ai4life_triton.zip"               # The zip file you uploaded earlier
+FILENAME = "ai4life_triton_2.zip"               # The zip file you uploaded earlier
 REPO_TYPE = "model"                        # or "dataset"
 UNZIP_DIR = "model_repo"            # Where to unzip the file
 
